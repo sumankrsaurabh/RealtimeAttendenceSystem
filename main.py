@@ -19,7 +19,7 @@ firebase_admin.initialize_app(cred, {
 
 bucket = storage.bucket()
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(3, 640)  #yeh dimmension hai background
 cap.set(4, 480)
 
