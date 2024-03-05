@@ -3,3 +3,5 @@
 ## to install and use this you need to run :
 
 > pip install -r requirments.txt
+
+![Screenshot](/screenshot.png)

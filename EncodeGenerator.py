@@ -12,8 +12,8 @@ from firebase_admin import  storage
 
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': "",
-    'storageBucket': ""
+    'databaseURL': "https://realtimeattendencesystem-a86c8-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    'storageBucket': "realtimeattendencesystem-a86c8.appspot.com"
 })
 
 
@@ -71,7 +71,6 @@ print("Encoding Complete")
 
 #now we need to store it in a pickle file so that we import it whenever we need it
 # when we store it in the pickle lib , we need to store 1. encodings , and 2. id's
-file = open("EncodeFile.p", 'wb') #wb is the permission
-pickle.dump(encodeListKnownWithIds, file) #were dumping it in pickle lib
-file.close()
+with open("EncodeFile.p", 'wb') as file: #wb is the permission
+    pickle.dump(encodeListKnownWithIds, file) #were dumping it in pickle lib
 print("File Saved")
