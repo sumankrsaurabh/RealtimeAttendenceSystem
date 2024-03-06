@@ -20,8 +20,9 @@ Before running the application, ensure you have the following dependencies insta
 - cvzone
 - Firebase Admin SDK
 
-Install the required packages using the following command:
+### Install the required packages using the following command:
 
-> pip install -r requirments.txt
-
+```bash
+pip install -r requirments.txt
+```
 ![Screenshot](/screenshot.png)
