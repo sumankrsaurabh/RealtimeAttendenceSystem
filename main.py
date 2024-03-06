@@ -12,25 +12,28 @@ import numpy as np
 from datetime import datetime
 
 cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://realtimeattendencesystem-a86c8-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    'storageBucket': "realtimeattendencesystem-a86c8.appspot.com"
-})
+firebase_admin.initialize_app(
+    cred,
+    {
+        "databaseURL": "https://realtimeattendencesystem-a86c8-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        "storageBucket": "realtimeattendencesystem-a86c8.appspot.com",
+    },
+)
 
 bucket = storage.bucket()
 
 cap = cv2.VideoCapture(0)
-cap.set(3, 640)  #yeh dimmension hai background
+cap.set(3, 640)  # yeh dimmension hai background
 cap.set(4, 480)
 
-#importing graphics , actually background img
-imgBackground = cv2.imread('Resources/background.png')
+# importing graphics , actually background img
+imgBackground = cv2.imread("Resources/background.png")
 
 # Importing the mode images into a list
-folderModePath = 'Resources/Modes'
+folderModePath = "Resources/Modes"
 modePathList = os.listdir(folderModePath)
 
-#now the list that will contain all the modes
+# now the list that will contain all the modes
 imgModeList = []
 for path in modePathList:
     imgModeList.append(cv2.imread(os.path.join(folderModePath, path)))
@@ -40,8 +43,8 @@ for path in modePathList:
 # Load the encoding file
 print("Loading Encode File ...")
 
-#load the encoding file
-file = open('EncodeFile.p', 'rb')
+# load the encoding file
+file = open("EncodeFile.p", "rb")
 encodeListKnownWithIds = pickle.load(file)
 file.close()
 encodeListKnown, studentIds = encodeListKnownWithIds
@@ -63,8 +66,10 @@ while True:
     encodeCurFrame = face_recognition.face_encodings(imgS, faceCurFrame)
 
     # now its important to make webcam not overlay instead imgbackground me us larki ke jagah dikhe right
-    imgBackground[162:162 + 480, 55:55 + 640] = img
-    imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]    # it'll give active mode on the right side of the background img
+    imgBackground[162 : 162 + 480, 55 : 55 + 640] = img
+    imgBackground[44 : 44 + 633, 808 : 808 + 414] = imgModeList[
+        modeType
+    ]  # it'll give active mode on the right side of the background img
 
     if faceCurFrame:
         for encodeFace, faceLoc in zip(encodeCurFrame, faceCurFrame):
@@ -95,54 +100,110 @@ while True:
 
             if counter == 1:
                 # Get the Data
-                studentInfo = db.reference(f'Students/{id}').get()
+                studentInfo = db.reference(f"Students/{id}").get()
                 print(studentInfo)
                 # Get the Image from the storage
-                blob = bucket.get_blob(f'Images/{id}.png')
+                blob = bucket.get_blob(f"Images/{id}.png")
                 array = np.frombuffer(blob.download_as_string(), np.uint8)
                 imgStudent = cv2.imdecode(array, cv2.COLOR_BGRA2BGR)
                 # Update data of attendance
-                datetimeObject = datetime.strptime(studentInfo['last_attendance_time'],
-                                                   "%Y-%m-%d %H:%M:%S")
+                datetimeObject = datetime.strptime(
+                    studentInfo["last_attendance_time"], "%Y-%m-%d %H:%M:%S"
+                )
                 secondsElapsed = (datetime.now() - datetimeObject).total_seconds()
                 print(secondsElapsed)
                 if secondsElapsed > 30:
-                    ref = db.reference(f'Students/{id}')
-                    studentInfo['total_attendance'] += 1
-                    ref.child('total_attendance').set(studentInfo['total_attendance'])
-                    ref.child('last_attendance_time').set(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                    ref = db.reference(f"Students/{id}")
+                    studentInfo["total_attendance"] += 1
+                    ref.child("total_attendance").set(studentInfo["total_attendance"])
+                    ref.child("last_attendance_time").set(
+                        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    )
                 else:
                     modeType = 3
                     counter = 0
-                    imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]
+                    imgBackground[44 : 44 + 633, 808 : 808 + 414] = imgModeList[
+                        modeType
+                    ]
 
             if modeType != 3:
 
                 if 10 < counter < 20:
                     modeType = 2
 
-                imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]
+                imgBackground[44 : 44 + 633, 808 : 808 + 414] = imgModeList[modeType]
 
                 if counter <= 10:
-                    cv2.putText(imgBackground, str(studentInfo['total_attendance']), (861, 125),
-                                cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 1)
-                    cv2.putText(imgBackground, str(studentInfo['major']), (1006, 550),
-                                cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                    cv2.putText(imgBackground, str(id), (1006, 493),
-                                cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255), 1)
-                    cv2.putText(imgBackground, str(studentInfo['standing']), (910, 625),
-                                cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
-                    cv2.putText(imgBackground, str(studentInfo['year']), (1025, 625),
-                                cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
-                    cv2.putText(imgBackground, str(studentInfo['starting_year']), (1125, 625),
-                                cv2.FONT_HERSHEY_COMPLEX, 0.6, (100, 100, 100), 1)
+                    cv2.putText(
+                        imgBackground,
+                        str(studentInfo["total_attendance"]),
+                        (861, 125),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        1,
+                        (255, 255, 255),
+                        1,
+                    )
+                    cv2.putText(
+                        imgBackground,
+                        str(studentInfo["major"]),
+                        (1006, 550),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        0.5,
+                        (255, 255, 255),
+                        1,
+                    )
+                    cv2.putText(
+                        imgBackground,
+                        str(id),
+                        (1006, 493),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        0.5,
+                        (255, 255, 255),
+                        1,
+                    )
+                    cv2.putText(
+                        imgBackground,
+                        str(studentInfo["standing"]),
+                        (910, 625),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        0.6,
+                        (100, 100, 100),
+                        1,
+                    )
+                    cv2.putText(
+                        imgBackground,
+                        str(studentInfo["year"]),
+                        (1025, 625),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        0.6,
+                        (100, 100, 100),
+                        1,
+                    )
+                    cv2.putText(
+                        imgBackground,
+                        str(studentInfo["starting_year"]),
+                        (1125, 625),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        0.6,
+                        (100, 100, 100),
+                        1,
+                    )
 
-                    (w, h), _ = cv2.getTextSize(studentInfo['name'], cv2.FONT_HERSHEY_COMPLEX, 1, 1)
+                    (w, h), _ = cv2.getTextSize(
+                        studentInfo["name"], cv2.FONT_HERSHEY_COMPLEX, 1, 1
+                    )
                     offset = (414 - w) // 2
-                    cv2.putText(imgBackground, str(studentInfo['name']), (808 + offset, 445),
-                                cv2.FONT_HERSHEY_COMPLEX, 1, (50, 50, 50), 1)
+                    cv2.putText(
+                        imgBackground,
+                        str(studentInfo["name"]),
+                        (808 + offset, 445),
+                        cv2.FONT_HERSHEY_COMPLEX,
+                        1,
+                        (50, 50, 50),
+                        1,
+                    )
 
-                    imgBackground[175:175 + 216, 909:909 + 216] = imgStudent
+                    imgBackground[175 : 175 + 216, 909 : 909 + 216] = imgStudent
 
                 counter += 1
 
@@ -151,10 +212,12 @@ while True:
                     modeType = 0
                     studentInfo = []
                     imgStudent = []
-                    imgBackground[44:44 + 633, 808:808 + 414] = imgModeList[modeType]
+                    imgBackground[44 : 44 + 633, 808 : 808 + 414] = imgModeList[
+                        modeType
+                    ]
     else:
         modeType = 0
         counter = 0
     # cv2.imshow("Webcam", img)
-    cv2.imshow("Face Attendance", imgBackground)  #yeh imgbackground show krega
+    cv2.imshow("Face Attendance", imgBackground)  # yeh imgbackground show krega
     cv2.waitKey(1)

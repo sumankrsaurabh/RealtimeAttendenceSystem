@@ -5,35 +5,39 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-from firebase_admin import  storage
+from firebase_admin import storage
 
 # first we're going to import faces and then were going to encode it & then we're going to dump it using the pickle library
 
 
 cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://realtimeattendencesystem-a86c8-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    'storageBucket': "realtimeattendencesystem-a86c8.appspot.com"
-})
+firebase_admin.initialize_app(
+    cred,
+    {
+        "databaseURL": "https://realtimeattendencesystem-a86c8-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        "storageBucket": "realtimeattendencesystem-a86c8.appspot.com",
+    },
+)
 
 
 # Importing student images
-folderPath = 'Images'
+folderPath = "Images"
 pathList = os.listdir(folderPath)
-print(pathList)  #this will give extension as well ex- d12.png
+print(pathList)  # this will give extension as well ex- d12.png
 
-#now the list that will contain all the modes
+# now the list that will contain all the modes
 imgList = []
-studentIds = []  #importing ids
+studentIds = []  # importing ids
 for path in pathList:
-    imgList.append(cv2.imread(os.path.join(folderPath, path)))  #aise were going to add img
+    imgList.append(
+        cv2.imread(os.path.join(folderPath, path))
+    )  # aise were going to add img
     studentIds.append(os.path.splitext(path)[0])
 
-    fileName = f'{folderPath}/{path}'
+    fileName = f"{folderPath}/{path}"
     bucket = storage.bucket()
     blob = bucket.blob(fileName)
     blob.upload_from_filename(fileName)
-
 
     # print(path)    #this will print d12.png
     # to remove it
@@ -43,8 +47,8 @@ for path in pathList:
     # print(os.path.splitext(path)[0])
 
     # now we have to put it all in studentIds
-print(studentIds) #this will print out student ids without extentions
-#now we will create a function where we will send list in the functions where itwill do all the encodings and spit out the images
+print(studentIds)  # this will print out student ids without extentions
+# now we will create a function where we will send list in the functions where itwill do all the encodings and spit out the images
 
 
 def findEncodings(imagesList):
@@ -56,7 +60,9 @@ def findEncodings(imagesList):
         # opencv user bgr and face recog uses rgb , we will convert the color
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        encode = face_recognition.face_encodings(img)[0]  #we will encode pictures one by one
+        encode = face_recognition.face_encodings(img)[
+            0
+        ]  # we will encode pictures one by one
         encodeList.append(encode)
 
     return encodeList
@@ -65,12 +71,12 @@ def findEncodings(imagesList):
 print("Encoding Started ...")
 # this will generate all of our encodings
 
-encodeListKnown = findEncodings(imgList)   #find encoding for all the known list
+encodeListKnown = findEncodings(imgList)  # find encoding for all the known list
 encodeListKnownWithIds = [encodeListKnown, studentIds]
 print("Encoding Complete")
 
-#now we need to store it in a pickle file so that we import it whenever we need it
+# now we need to store it in a pickle file so that we import it whenever we need it
 # when we store it in the pickle lib , we need to store 1. encodings , and 2. id's
-with open("EncodeFile.p", 'wb') as file: #wb is the permission
-    pickle.dump(encodeListKnownWithIds, file) #were dumping it in pickle lib
+with open("EncodeFile.p", "wb") as file:  # wb is the permission
+    pickle.dump(encodeListKnownWithIds, file)  # were dumping it in pickle lib
 print("File Saved")

@@ -13,7 +13,7 @@ data = {
     "644464":
         {
             "name": "Suman Kumar Saurabh",
-            "major": "Artificial intelligence & Data science",
+            "major": "AI & DS",
             "starting_year": 2023,
             "total_attendance": 10,
             "standing": "G",
