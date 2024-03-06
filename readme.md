@@ -25,4 +25,6 @@ Before running the application, ensure you have the following dependencies insta
 ```bash
 pip install -r requirments.txt
 ```
+
+
 ![Screenshot](/screenshot.png)
