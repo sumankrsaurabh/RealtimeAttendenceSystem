@@ -23,6 +23,10 @@ Before running the application, ensure you have the following dependencies insta
 ### Install the required packages using the following command:
 
 ```bash
+venv\Scripts\activate.bat
+```
+
+```bash
 pip install -r requirments.txt
 ```
 
