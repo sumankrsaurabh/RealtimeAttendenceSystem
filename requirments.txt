@@ -1,6 +1,4 @@
-os
-pickle
-cv2
+cvzone
 face-recognition==1.3.0
 firebase-admin==6.4.0
 numpy
